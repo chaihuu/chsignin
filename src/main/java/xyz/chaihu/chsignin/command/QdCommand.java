@@ -10,6 +10,8 @@ import xyz.chaihu.chsignin.Settings;
 import xyz.chaihu.chsignin.calendar.HolidayService;
 import xyz.chaihu.chsignin.data.PlayerData;
 import xyz.chaihu.chsignin.fortune.FortuneService;
+import xyz.chaihu.chsignin.notify.GeyserBridge;
+import xyz.chaihu.chsignin.notify.JoinNotifier;
 import xyz.chaihu.chsignin.sign.SignService;
 
 import java.time.DayOfWeek;
@@ -72,6 +74,7 @@ public final class QdCommand implements CommandExecutor, TabCompleter {
             case "help", "?" -> handleHelp(player);
             case "status", "info", "查询" -> handleStatus(player);
             case "bq", "makeup", "补签" -> handleMakeup(player, args);
+            case "ui", "menu" -> handleUi(player);
             case "reload" -> handleReload(player);
             default -> handleHelp(player);
         }
@@ -285,6 +288,16 @@ public final class QdCommand implements CommandExecutor, TabCompleter {
         return sb.toString();
     }
 
+    // ---------- /qd ui ----------
+
+    private void handleUi(Player player) {
+        if (plugin.geyserHook().bedrock(player.getUniqueId())) {
+            GeyserBridge.showMain(plugin, player);
+        } else {
+            player.sendMessage(JoinNotifier.menuMessage(plugin.settings().prefix(), "§e签到快捷入口: "));
+        }
+    }
+
     // ---------- /qd reload ----------
 
     private void handleReload(Player player) {
@@ -305,6 +318,7 @@ public final class QdCommand implements CommandExecutor, TabCompleter {
                 " §a/qd status §7— 查看本周签到与统计",
                 " §a/qd bq §7— 查看可补签日期",
                 " §a/qd bq <yyyy-MM-dd> §7— 补签指定日期",
+                " §a/qd ui §7— 打开签到界面 §8(基岩版表单)",
                 " §a/qd reload §7— 重载配置 §8(管理员)");
     }
 
@@ -313,7 +327,7 @@ public final class QdCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            List<String> subs = new ArrayList<>(List.of("help", "status", "bq", "reload"));
+            List<String> subs = new ArrayList<>(List.of("help", "status", "bq", "ui", "reload"));
             return filter(subs, args[0]);
         }
         if (args.length == 2 && sender instanceof Player player

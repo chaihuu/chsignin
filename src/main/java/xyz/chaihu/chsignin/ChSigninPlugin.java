@@ -8,6 +8,8 @@ import xyz.chaihu.chsignin.data.DataManager;
 import xyz.chaihu.chsignin.economy.EconomyHook;
 import xyz.chaihu.chsignin.fortune.FortuneService;
 import xyz.chaihu.chsignin.fortune.QuoteService;
+import xyz.chaihu.chsignin.notify.GeyserHook;
+import xyz.chaihu.chsignin.notify.JoinNotifier;
 import xyz.chaihu.chsignin.sign.SignService;
 
 import java.io.File;
@@ -25,6 +27,7 @@ public final class ChSigninPlugin extends JavaPlugin {
     private FortuneService fortuneService;
     private QuoteService quoteService;
     private SignService signService;
+    private GeyserHook geyserHook;
 
     @Override
     public void onEnable() {
@@ -62,6 +65,14 @@ public final class ChSigninPlugin extends JavaPlugin {
             qd.setTabCompleter(qdCommand);
         }
 
+        geyserHook = new GeyserHook(getServer().getPluginManager());
+        getServer().getPluginManager().registerEvents(new JoinNotifier(this), this);
+
+        if (geyserHook.present()) {
+            getLogger().info("检测到 Geyser — 基岩玩家入服将弹出签到 UI, Java 玩家发送可点击签到提示。");
+        } else {
+            getLogger().info("未检测到 Geyser — 所有玩家入服发送可点击签到提示(安装 Geyser 后基岩玩家自动改用签到 UI)。");
+        }
         getLogger().info("ChSignin 已启用 — 玩家输入 /qd 即可签到。");
     }
 
@@ -127,5 +138,9 @@ public final class ChSigninPlugin extends JavaPlugin {
 
     public SignService signService() {
         return signService;
+    }
+
+    public GeyserHook geyserHook() {
+        return geyserHook;
     }
 }

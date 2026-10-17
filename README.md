@@ -1,6 +1,6 @@
 # ChSignin
 
-轻量化的 Minecraft Bukkit/Paper 签到插件。无 GUI,所有交互仅通过 `/qd` 命令与聊天栏完成,兼容 Geyser 基岩端。
+轻量化的 Minecraft Bukkit/Paper 签到插件。命令聊天栏交互 + 基岩版(Geyser)表单 UI 双入口,Java/基岩玩家各得最佳体验。
 
 > MineBBS 内容页:[https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/](https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/)
 
@@ -10,6 +10,8 @@
 - **签到状态** `/qd status` — 本周签到格子、连续天数、累计次数、当前余额、可补签日期
 - **补签** `/qd bq [日期]` — 默认仅可补签当周漏签日期;冷却、时间范围、消耗、每周次数上限均可配置
 - **帮助 / 重载** `/qd help`、`/qd reload`(管理员权限)
+- **入服签到提醒** — 仅当日未签到玩家触发:基岩版自动弹出签到 UI,Java 版发送可点击签到消息(ClickEvent)
+- **基岩版签到 UI** — Geyser 表单式交互界面(`/qd ui` 可随时打开),按钮覆盖签到/状态/补签/帮助/重载全部命令场景
 - **命令别名与补全** — 支持 `/qiandao`、`/sign`;Tab 补全含可补签日期联想
 - **内置节日数据库** — 公历法定节日 + 农历传统节日(1900–2100 农历算法,含闰月)+ 清明/冬至节气推算,每个节日带专属颜色
 - **每日运势** — 按玩家 UUID + 日期确定性生成(同玩家同天恒定),含五维星级、幸运色/幸运数/财神方位、宜忌
@@ -17,7 +19,7 @@
 - **Vault 经济集成** — 签到奖励自动入账、补签消耗自动扣除;未安装 Vault 时优雅禁用并给出明确提示
 - **奖励配置** — 随机区间 / 固定数额两种模式;连续签到阶梯额外奖励
 - **轻量存储** — 每位玩家一个 YAML 文件,内存缓存、修改即落盘,无数据库
-- **零运行期依赖** — 除 Vault API(provided)外无任何第三方库,jar 仅约 20KB
+- **零运行期依赖** — Vault / Geyser API 均为 provided 可选依赖,未安装时自动降级,插件本体极小
 
 ## 许可
 
