@@ -1,0 +1,53 @@
+# ============================================================
+#  ChSignin 主配置文件
+#  所有功能仅通过 /qd 命令触发, 无 GUI, 全部聊天栏交互。
+# ============================================================
+
+general:
+  # 一周起始日: MONDAY(周一) 或 SUNDAY(周日)
+  week-start: MONDAY
+
+reward:
+  # 奖励模式: random-range = 每日随机区间 | fixed = 固定数额
+  mode: random-range
+  random-range:
+    min: 10
+    max: 50
+  fixed-amount: 20
+
+streak:
+  enabled: true
+  # 连续签到额外奖励: 连续天数恰好达到 days 时, 额外发放 bonus 金币
+  rules:
+    - days: 3
+      bonus: 20
+    - days: 7
+      bonus: 50
+    - days: 30
+      bonus: 200
+
+makeup:
+  enabled: true
+  # 仅允许补签"当周"内漏签的日期 (按 general.week-start 计算)
+  current-week-only: true
+  # 当 current-week-only = false 时生效: 最多允许往前补签的天数
+  max-days-back: 7
+  # 两次补签之间的最小间隔天数 (0 = 无冷却)
+  cooldown-days: 1
+  # 每周最多补签次数
+  max-per-week: 2
+  # 每次补签消耗金币 (0 = 免费)
+  cost: 10
+  # 补签是否发放与正常签到相同的奖励
+  gives-reward: true
+
+fortune:
+  # 每日首次签到时展示当日运势 (基于玩家与日期确定性生成)
+  enabled: true
+
+quote:
+  # 每日一言 (内容见插件目录 quotes.yml, 可自由增删)
+  enabled: true
+
+messages:
+  prefix: "§8[§b§l签到§8]§r "

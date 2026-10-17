@@ -1,0 +1,21 @@
+name: ChSignin
+version: 1.0.0
+main: xyz.chaihu.chsignin.ChSigninPlugin
+api-version: '1.21'
+authors: [chaihu]
+description: 轻量化签到插件, 仅 /qd 命令驱动, 全聊天栏交互, 兼容 Geyser。
+softdepend: [Vault]
+
+commands:
+  qd:
+    description: 签到 / 补签 / 查询
+    usage: "§c用法: /qd help 查看帮助"
+    aliases: [qiandao, sign]
+
+permissions:
+  chsignin.use:
+    description: 使用 /qd 签到功能
+    default: true
+  chsignin.admin:
+    description: 重载配置等管理功能
+    default: op
