@@ -2,6 +2,8 @@
 
 轻量化的 Minecraft Bukkit/Paper 签到插件。无 GUI,所有交互仅通过 `/qd` 命令与聊天栏完成,兼容 Geyser 基岩端。
 
+> MineBBS 内容页:[https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/](https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/)
+
 ## 功能
 
 - **每日签到** `/qd` — 分行展示日期、星期、农历、今日节日、签到奖励、连续天数、每日运势、每日一言
