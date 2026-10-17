@@ -6,7 +6,7 @@
 
     <groupId>xyz.chaihu</groupId>
     <artifactId>chsignin</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
     <name>ChSignin</name>
 
@@ -64,6 +64,20 @@
             <groupId>org.geysermc.geyser</groupId>
             <artifactId>api</artifactId>
             <version>2.11.3-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- Cumulus 由下方独立声明, 避免传递依赖版本与作用域不明确 -->
+                <exclusion>
+                    <groupId>org.geysermc.cumulus</groupId>
+                    <artifactId>cumulus</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Cumulus 表单 API (Geyser 运行期自带; provided 确保其类不会被打包进本插件 Jar) -->
+        <dependency>
+            <groupId>org.geysermc.cumulus</groupId>
+            <artifactId>cumulus</artifactId>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

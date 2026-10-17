@@ -4,6 +4,8 @@
 
 > MineBBS 内容页:[https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/](https://www.minebbs.com/resources/chsignin-minecraft-bukkit-paper.18614/)
 
+> **基岩版运行要求**:Geyser 2.12+ 需要 Java 版服务端 **26.3+**;若服务端版本较低,请安装 **ViaVersion**,否则现代基岩客户端会因 `Outdated server` 无法登录,签到表单不会显示。详见[基岩版 UI 实测问题处理文档](基岩版UI实测问题处理文档.md)。
+
 ## 功能
 
 - **每日签到** `/qd` — 分行展示日期、星期、农历、今日节日、签到奖励、连续天数、每日运势、每日一言
@@ -19,7 +21,7 @@
 - **Vault 经济集成** — 签到奖励自动入账、补签消耗自动扣除;未安装 Vault 时优雅禁用并给出明确提示
 - **奖励配置** — 随机区间 / 固定数额两种模式;连续签到阶梯额外奖励
 - **轻量存储** — 每位玩家一个 YAML 文件,内存缓存、修改即落盘,无数据库
-- **零运行期依赖** — Vault / Geyser API 均为 provided 可选依赖,未安装时自动降级,插件本体极小
+- **零运行期依赖** — Vault / Geyser API / Cumulus 均为 provided 可选依赖,未安装时自动降级,插件本体极小
 
 ## 许可
 

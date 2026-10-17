@@ -8,6 +8,7 @@ import xyz.chaihu.chsignin.data.DataManager;
 import xyz.chaihu.chsignin.economy.EconomyHook;
 import xyz.chaihu.chsignin.fortune.FortuneService;
 import xyz.chaihu.chsignin.fortune.QuoteService;
+import xyz.chaihu.chsignin.notify.GeyserBridge;
 import xyz.chaihu.chsignin.notify.GeyserHook;
 import xyz.chaihu.chsignin.notify.JoinNotifier;
 import xyz.chaihu.chsignin.sign.SignService;
@@ -70,10 +71,57 @@ public final class ChSigninPlugin extends JavaPlugin {
 
         if (geyserHook.present()) {
             getLogger().info("检测到 Geyser — 基岩玩家入服将弹出签到 UI, Java 玩家发送可点击签到提示。");
+            warnIfGeyserVersionMismatch();
         } else {
             getLogger().info("未检测到 Geyser — 所有玩家入服发送可点击签到提示(安装 Geyser 后基岩玩家自动改用签到 UI)。");
         }
         getLogger().info("ChSignin 已启用 — 玩家输入 /qd 即可签到。");
+    }
+
+    /**
+     * 启动期版本自检: Geyser 新版本可能要求更高的 Java 版服务端版本,
+     * 不匹配时基岩客户端会在登录阶段被拒绝, 签到表单 UI 根本无法展示。
+     * 这里只做可追溯的告警, 不改变任何运行逻辑。
+     */
+    private void warnIfGeyserVersionMismatch() {
+        String required = GeyserBridge.supportedJavaVersion();
+        String current = getServer().getMinecraftVersion();
+        if (required == null || current == null || versionAtLeast(current, required)) {
+            return;
+        }
+        if (getServer().getPluginManager().getPlugin("ViaVersion") != null) {
+            getLogger().info("检测到 ViaVersion — 已兼容 Geyser 对 Java 版 " + required + " 的版本要求。");
+            return;
+        }
+        getLogger().warning("Geyser 需要 Java 版服务端 " + required + ", 当前为 " + current + "。");
+        getLogger().warning("现代基岩客户端将因服务端版本过旧而无法连接(Outdated server), 签到表单不会显示。");
+        getLogger().warning("请升级服务端至 " + required + "+ 或安装 ViaVersion 后重试。");
+    }
+
+    /** 仅比较数字段, 例如 26.1.2 &lt; 26.3; 无法解析的段按 0 处理。 */
+    private static boolean versionAtLeast(String current, String required) {
+        String[] a = current.split("[^0-9]+");
+        String[] b = required.split("[^0-9]+");
+        int len = Math.max(a.length, b.length);
+        for (int i = 0; i < len; i++) {
+            int x = numberAt(a, i);
+            int y = numberAt(b, i);
+            if (x != y) {
+                return x > y;
+            }
+        }
+        return true;
+    }
+
+    private static int numberAt(String[] parts, int index) {
+        if (index >= parts.length || parts[index].isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(parts[index]);
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
     }
 
     /** 经济提供者延迟重试绑定: 每 2 秒一次, 最多 attempts 次, 失败则禁用插件。 */

@@ -62,13 +62,13 @@ class SignFormUITest {
         SimpleForm form = SimpleForm.builder()
                 .title("每日签到")
                 .content(SignFormUI.mainContent(D, "农历九月初八", "", false, 0, 0, "$0.0", 1, 10))
-                .button("✦ 立即签到")
-                .button("📊 本周状态")
-                .button("🗓 补签")
-                .button("❓ 帮助")
+                .button("立即签到")
+                .button("本周状态")
+                .button("补签")
+                .button("帮助")
                 .build();
         assertEquals("每日签到", form.title());
         assertEquals(4, form.buttons().size());
-        assertEquals("✦ 立即签到", form.buttons().get(0).text());
+        assertEquals("立即签到", form.buttons().get(0).text());
     }
 }

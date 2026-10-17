@@ -19,8 +19,12 @@ import java.time.LocalDate;
  */
 public final class JoinNotifier implements Listener {
 
-    /** 入服提醒延迟(刻), 等待客户端聊天栏/表单系统就绪。 */
-    private static final long DELAY_TICKS = 30L;
+    /** 入服提醒延迟(刻), 等待客户端完成地形加载, 避免表单在加载界面被丢弃。 */
+    private static final long DELAY_TICKS = 60L;
+    /** 表单推送失败后的重试间隔(刻)。 */
+    private static final long RETRY_TICKS = 40L;
+    /** 基岩表单最多推送次数(首次 + 1 次重试)。 */
+    private static final int MAX_FORM_ATTEMPTS = 2;
 
     private final ChSigninPlugin plugin;
 
@@ -77,10 +81,31 @@ public final class JoinNotifier implements Listener {
                 return;
             }
             if (plugin.geyserHook().bedrock(player.getUniqueId())) {
-                GeyserBridge.showMain(plugin, player);
+                showBedrockUi(player, 1);
             } else {
                 player.sendMessage(reminderMessage(plugin.settings().prefix()));
             }
         }, DELAY_TICKS);
+    }
+
+    /** 推送基岩签到表单; 失败时延迟重试一次, 仍失败则降级为命令提示。 */
+    private void showBedrockUi(Player player, int attempt) {
+        if (!player.isOnline()) {
+            return;
+        }
+        if (!shouldRemind(plugin.dataManager().get(player.getUniqueId(), player.getName()), LocalDate.now())) {
+            return;
+        }
+        if (GeyserBridge.showMain(plugin, player)) {
+            return;
+        }
+        if (attempt < MAX_FORM_ATTEMPTS) {
+            plugin.getServer().getScheduler().runTaskLater(plugin,
+                    () -> showBedrockUi(player, attempt + 1), RETRY_TICKS);
+            return;
+        }
+        plugin.getLogger().warning("玩家 " + player.getName() + " 的签到表单连续 "
+                + MAX_FORM_ATTEMPTS + " 次推送失败, 已降级为命令提示。");
+        GeyserBridge.fallback(plugin, player);
     }
 }

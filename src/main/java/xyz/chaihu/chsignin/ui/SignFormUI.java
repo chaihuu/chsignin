@@ -2,7 +2,6 @@ package xyz.chaihu.chsignin.ui;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
-import org.geysermc.cumulus.form.SimpleForm;
 import xyz.chaihu.chsignin.ChSigninPlugin;
 import xyz.chaihu.chsignin.Settings;
 import xyz.chaihu.chsignin.calendar.HolidayService;
@@ -84,8 +83,8 @@ public final class SignFormUI {
 
     // ---------- 表单构建与交互 ----------
 
-    /** 推送主菜单签到表单。 */
-    public void showMain(Player player) {
+    /** 推送主菜单签到表单, 推送成功返回 true。 */
+    public boolean showMain(Player player) {
         LocalDate today = LocalDate.now();
         PlayerData data = plugin.dataManager().get(player.getUniqueId(), player.getName());
         Settings s = plugin.settings();
@@ -104,36 +103,37 @@ public final class SignFormUI {
 
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
-        labels.add(signed ? "✔ 今日已签到" : "✦ 立即签到");
+        // 按钮文案只使用基岩版字体确定支持的纯文本, 避免 emoji 在部分设备上渲染为方块
+        labels.add(signed ? "今日已签到" : "立即签到");
         actions.add(() -> {
             player.performCommand("qd");
             if (!signed) {
                 reShowMain(player);
             }
         });
-        labels.add("📊 本周状态");
+        labels.add("本周状态");
         actions.add(() -> player.performCommand("qd status"));
         if (s.makeupEnabled()) {
-            labels.add("🗓 补签");
-            actions.add(() -> showMakeup(player));
+            labels.add("补签");
+            actions.add(() -> {
+                if (!showMakeup(player)) {
+                    fallback(player);
+                }
+            });
         }
-        labels.add("❓ 帮助");
+        labels.add("帮助");
         actions.add(() -> player.performCommand("qd help"));
         if (player.hasPermission("chsignin.admin")) {
-            labels.add("♻ 重载配置");
+            labels.add("重载配置");
             actions.add(() -> player.performCommand("qd reload"));
         }
 
-        SimpleForm.Builder builder = SimpleForm.builder().title("每日签到").content(content);
-        for (String label : labels) {
-            builder.button(label);
-        }
-        builder.validResultHandler(response -> onButton(player, actions, response.clickedButtonId()));
-        show(player, builder.build());
+        return GeyserBridge.sendSimpleForm(player.getUniqueId(), "每日签到", content, labels,
+                id -> onButton(player, actions, id), plugin.getLogger());
     }
 
-    /** 推送补签日期选择表单。 */
-    public void showMakeup(Player player) {
+    /** 推送补签日期选择表单, 推送成功返回 true。 */
+    public boolean showMakeup(Player player) {
         LocalDate today = LocalDate.now();
         PlayerData data = plugin.dataManager().get(player.getUniqueId(), player.getName());
         Settings s = plugin.settings();
@@ -150,17 +150,16 @@ public final class SignFormUI {
                 reShowMain(player);
             });
         }
-        labels.add("↩ 返回主菜单");
-        actions.add(() -> showMain(player));
+        labels.add("返回主菜单");
+        actions.add(() -> {
+            if (!showMain(player)) {
+                fallback(player);
+            }
+        });
 
-        SimpleForm.Builder builder = SimpleForm.builder()
-                .title("补签")
-                .content(makeupContent(s.makeupCost(), remainQuota, s.makeupCooldownDays()));
-        for (String label : labels) {
-            builder.button(label);
-        }
-        builder.validResultHandler(response -> onButton(player, actions, response.clickedButtonId()));
-        show(player, builder.build());
+        return GeyserBridge.sendSimpleForm(player.getUniqueId(), "补签",
+                makeupContent(s.makeupCost(), remainQuota, s.makeupCooldownDays()), labels,
+                id -> onButton(player, actions, id), plugin.getLogger());
     }
 
     private void onButton(Player player, List<Runnable> actions, int buttonId) {
@@ -175,19 +174,17 @@ public final class SignFormUI {
 
     private void reShowMain(Player player) {
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                showMain(player);
+            if (player.isOnline() && !showMain(player)) {
+                fallback(player);
             }
         }, 1L);
     }
 
-    private void show(Player player, SimpleForm form) {
-        if (!GeyserBridge.sendForm(player.getUniqueId(), form)) {
-            // 表单推送失败(如已有其他表单打开): 降级为可点击聊天提示
-            player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(
-                    plugin.settings().prefix() + "§e签到表单暂时无法打开, 你仍可点击 "
-                            + "§a[立即签到] §e或 §b[查看帮助]§e。"));
-            player.performCommand("qd help");
-        }
+    /** 表单推送失败时的降级提示: 基岩聊天栏不支持点击事件, 因此只给出可直接输入的命令。 */
+    public void fallback(Player player) {
+        plugin.getLogger().warning("基岩签到表单推送失败, 玩家 " + player.getName() + " 已降级为命令提示。");
+        player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(
+                plugin.settings().prefix() + "§e签到界面暂时无法打开, 请直接输入 "
+                        + "§a/qd §e签到, §a/qd status §e查看状态, §a/qd bq §e补签。"));
     }
 }

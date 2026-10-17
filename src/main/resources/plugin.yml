@@ -1,10 +1,10 @@
 name: ChSignin
-version: 1.1.0
+version: 1.1.2
 main: xyz.chaihu.chsignin.ChSigninPlugin
 api-version: '1.21'
 authors: [chaihu]
 description: 轻量化签到插件, /qd 命令 + 基岩版表单 UI 双入口, 全聊天栏交互, 兼容 Geyser。
-softdepend: [Vault, Geyser]
+softdepend: [Vault, Geyser, Geyser-Spigot]
 
 commands:
   qd:

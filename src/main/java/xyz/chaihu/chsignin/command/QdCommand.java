@@ -292,7 +292,9 @@ public final class QdCommand implements CommandExecutor, TabCompleter {
 
     private void handleUi(Player player) {
         if (plugin.geyserHook().bedrock(player.getUniqueId())) {
-            GeyserBridge.showMain(plugin, player);
+            if (!GeyserBridge.showMain(plugin, player)) {
+                GeyserBridge.fallback(plugin, player);
+            }
         } else {
             player.sendMessage(JoinNotifier.menuMessage(plugin.settings().prefix(), "§e签到快捷入口: "));
         }
